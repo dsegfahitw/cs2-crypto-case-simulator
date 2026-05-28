@@ -51,5 +51,3 @@ SkinBank is a full-stack web application designed to simulate the opening of cas
 
 ---
 *Developed with 💻 and ☕ in 2026.*
-
-Translated with DeepL.com (free version)
