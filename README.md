@@ -22,7 +22,7 @@ SkinBank is a full-stack web application designed to simulate the opening of cas
 
 1. **Clone the repository:**
    \`\`\`bash
-   git clone https://github.com/ТВІЙ_НІК/ТВІЙ_РЕПОЗИТОРІЙ.git
+   git clone https://github.com/username/repo.git
    \`\`\`
 
 2. **Install dependencies:**
