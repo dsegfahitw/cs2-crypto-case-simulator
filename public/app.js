@@ -218,7 +218,6 @@ document.addEventListener("DOMContentLoaded", () => {
       backBtn.classList.remove('opacity-50');
     }
   });
-
   collectBtn.addEventListener('click', () => {
     winModal.classList.add('opacity-0');
     winModal.querySelector('div').classList.add('scale-95');
