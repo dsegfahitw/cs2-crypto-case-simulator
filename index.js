@@ -1,14 +1,116 @@
+require('dotenv').config();
 const express = require('express');
 const crypto = require('crypto');
-const fs = require('fs');
 const path = require('path');
+const session = require('express-session');
+const rateLimit = require('express-rate-limit');
+
+// 1. Підключаємо модулі для роботи з БД
+const { Pool } = require('pg');
+const { PrismaPg } = require('@prisma/adapter-pg');
+const { PrismaClient } = require('@prisma/client');
+
+// 2. Налаштовуємо адаптер PostgreSQL
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+
+// 3. Ініціалізуємо Prisma 7 через адаптер
+const prisma = new PrismaClient({ adapter });
+
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
+// Налаштування сесій
+app.use(session({
+  secret: 'super-secret-local-bro-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: false, 
+    httpOnly: true, 
+    maxAge: 24 * 60 * 60 * 1000 
+  }
+}));
+
+// Захист від спаму кнопкою
+const openCaseLimiter = rateLimit({
+  windowMs: 1500, 
+  max: 1, 
+  message: { success: false, message: "Ей, бро, не спам! Стрічка ще крутиться." }
+});
+
+// Роут імітації входу (Фейк-Стім)
+app.get('/auth/fake-login', async (req, res) => {
+  try {
+    const testSteamId = "76561198000000000";
+    let user = await prisma.user.findUnique({ where: { steamId: testSteamId } });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          steamId: testSteamId,
+          username: "Сеньйор Розробник (Beta)",
+          avatarUrl: "https://placehold.co/100x100/1f2937/4ade80?text=Dev",
+          balance: 150.00
+        }
+      });
+      console.log("🆕 Тестового користувача створено в Supabase!");
+    }
+
+    req.session.userId = user.id;
+    res.redirect('/');
+  } catch (error) {
+    console.error("Помилка авторизації:", error);
+    res.status(500).send("Помилка сервера при вході.");
+  }
+});
+
+app.get('/auth/logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/');
+});
+
+function isAuthenticated(req, res, next) {
+  if (!req.session.userId) {
+    return res.status(401).json({ success: false, authorized: false, message: "Спочатку увійдіть в акаунт!" });
+  }
+  next();
+}
+
+// API: Профіль користувача
+app.get('/api/user-profile', async (req, res) => {
+  if (!req.session.userId) {
+    return res.json({ success: false, authorized: false });
+  }
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.session.userId } });
+    res.json({
+      success: true,
+      authorized: true,
+      username: user.username,
+      balance: user.balance,
+      avatarUrl: user.avatarUrl
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Помилка завантаження профілю." });
+  }
+});
+
+// API: Список кейсів з БД Supabase
+app.get('/api/cases', async (req, res) => {
+  try {
+    const cases = await prisma.case.findMany({ include: { items: true } });
+    res.json({ success: true, cases });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Помилка завантаження кейсів з БД." });
+  }
+});
+
+// Алгоритм чесності Provably Fair
 function openCaseProvablyFair(items, serverSeed, clientSeed, nonce) {
   const combinedString = `${serverSeed}-${clientSeed}-${nonce}`;
   const hash = crypto.createHash('sha256').update(combinedString).digest('hex');
@@ -26,80 +128,78 @@ function openCaseProvablyFair(items, serverSeed, clientSeed, nonce) {
   }
 }
 
-// НОВИЙ ЕНДПОІНТ: Отримання списку кейсів для фронтенду
-app.get('/api/cases', (req, res) => {
+// API: Відкриття кейсу (POST з ACID-транзакцією)
+app.post('/api/open-case', openCaseLimiter, isAuthenticated, async (req, res) => {
+  const { caseId, clientSeed } = req.body;
+  const userId = req.session.userId;
+
   try {
-    const allCases = JSON.parse(fs.readFileSync('./cases.json', 'utf-8'));
-    res.json({ success: true, cases: allCases });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Помилка завантаження кейсів" });
-  }
-});
-
-app.get('/api/open-case', (req, res) => {
-  try {
-    const allCases = JSON.parse(fs.readFileSync('./cases.json', 'utf-8'));
-    const allUsers = JSON.parse(fs.readFileSync('./users.json', 'utf-8'));
-
-    const userId = "bro_user_1"; 
-    const user = allUsers[userId];
-    const caseType = req.query.caseType || 'spring-hype';
-    const currentCase = allCases[caseType];
-
-    if (!currentCase) {
-      return res.status(404).json({ success: false, message: "Кейсу не існує!" });
-    }
-    if (user.balance < currentCase.price) {
-      return res.status(400).json({ success: false, message: "Недостатньо коштів на балансі!" });
-    }
-
-    const oldBalance = user.balance;
-    user.balance -= currentCase.price;
-
-    const serverSeed = "super_secret_server_seed_key";
-    const clientSeed = req.query.clientSeed || "default_bro_seed";
-    const nonce = Date.now(); 
-    
-    const dropResult = openCaseProvablyFair(currentCase.items, serverSeed, clientSeed, nonce);
-
-    user.balance += dropResult.item.price;
-    user.inventory.push({
-      name: dropResult.item.name,
-      price: dropResult.item.price,
-      droppedAt: new Date()
+    const currentCase = await prisma.case.findUnique({
+      where: { id: caseId },
+      include: { items: true }
     });
 
-    fs.writeFileSync('./users.json', JSON.stringify(allUsers, null, 2), 'utf-8');
+    if (!currentCase) {
+      return res.status(404).json({ success: false, message: "Кейс не знайдено." });
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({ where: { id: userId } });
+
+      if (user.balance < currentCase.price) {
+        throw new Error("Недостатньо коштів на балансі, бро!");
+      }
+
+      const balanceAfterBuy = user.balance - currentCase.price;
+      
+      const serverSeed = "super_secret_server_seed_key";
+      const nonce = Date.now();
+      const userSeed = clientSeed || "default_bro_seed";
+      
+      const dropResult = openCaseProvablyFair(currentCase.items, serverSeed, userSeed, nonce);
+      const finalBalance = balanceAfterBuy + dropResult.item.price;
+
+      await tx.user.update({
+        where: { id: userId },
+        data: { balance: finalBalance }
+      });
+
+      await tx.inventory.create({
+        data: {
+          userId: user.id,
+          itemId: dropResult.item.id,
+          status: "IN_INVENTORY"
+        }
+      });
+
+      return {
+        drop: dropResult.item,
+        hash: dropResult.hash,
+        randomNumber: dropResult.randomNumber,
+        previousBalance: user.balance,
+        balanceAfterBuy,
+        finalBalance
+      };
+    });
 
     res.json({
       success: true,
       caseTitle: currentCase.title,
       casePrice: currentCase.price,
       user: {
-        username: user.username,
-        previousBalance: oldBalance.toFixed(2),
-        balanceAfterBuy: (oldBalance - currentCase.price).toFixed(2),
-        finalBalance: user.balance.toFixed(2)
+        previousBalance: result.previousBalance.toFixed(2),
+        balanceAfterBuy: result.balanceAfterBuy.toFixed(2),
+        finalBalance: result.finalBalance.toFixed(2)
       },
-      drop: dropResult.item,
-      provablyFair: { hash: dropResult.hash, number: dropResult.randomNumber.toFixed(4) }
+      drop: result.drop,
+      provablyFair: { hash: result.hash, number: result.randomNumber.toFixed(4) }
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Помилка сервера." });
-  }
-});
 
-app.get('/api/user-profile', (req, res) => {
-  try {
-    const allUsers = JSON.parse(fs.readFileSync('./users.json', 'utf-8'));
-    const user = allUsers["bro_user_1"];
-    res.json({ success: true, username: user.username, balance: user.balance });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Помилка сервера" });
+    res.status(400).json({ success: false, message: error.message });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Сервер з економікою запущено на порту ${PORT}!`);
+  console.log(`🚀 SkinBank Beta успішно запущено на http://localhost:${PORT}`);
 });

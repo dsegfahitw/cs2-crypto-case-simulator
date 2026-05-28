@@ -8,3 +8,4 @@ package-lock.json
 # Логи та системні файли
 npm-debug.log*
 .DS_Store
+/generated/prisma

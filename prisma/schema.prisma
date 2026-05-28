@@ -1,0 +1,66 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 1. Модель користувача
+model User {
+  id          String      @id @default(uuid()) // Унікальний ID в системі
+  steamId     String?     @unique              // SteamID для авторизації (може бути null, якщо логін через Google)
+  googleId    String?     @unique              // GoogleID для авторизації
+  username    String
+  avatarUrl   String?                          // Посилання на аватарку
+  balance     Float       @default(10.00)      // Стартовий баланс $10 для тесту бети
+  role        String      @default("USER")     // Роль: USER або ADMIN
+  createdAt   DateTime    @default(now())
+  
+  // Зв'язок: у одного користувача може бути багато предметів в інвентарі
+  inventory   Inventory[]
+}
+
+// 2. Модель кейсу
+model Case {
+  id        String   @id // Наприклад: "spring-hype", "knife-hype"
+  title     String
+  price     Float
+  imageUrl  String?  // Посилання на картинку кейсу в Supabase Storage
+  createdAt DateTime @default(now())
+
+  // Зв'язок: один кейс містить багато предметів
+  items     Item[]
+}
+
+// 3. Модель предметів, які взагалі існують в кейсах
+model Item {
+  id        String   @id @default(uuid())
+  name      String   // Наприклад: "AK-47 | Азімов"
+  price     Float
+  chance    Float    // Шанс випадіння у відсотках (наприклад: 1.5, 85.0)
+  imageUrl  String?  // Посилання на картинку скіна
+  
+  // Зв'язок з кейсом (кожен предмет прив'язаний до свого кейсу)
+  caseId    String
+  case      Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  // Зв'язок з інвентарем (цей скін міг випасти багатьом людям)
+  droppedIn Inventory[]
+}
+
+// 4. Модель віртуального інвентаря користувачів
+model Inventory {
+  id        String   @id @default(uuid())
+  
+  // Зв'язок з юзером
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Зв'язок з предметом
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  
+  droppedAt DateTime @default(now())
+  status    String   @default("IN_INVENTORY") // Статуси: IN_INVENTORY, SOLD, WITHDRAWN
+}
