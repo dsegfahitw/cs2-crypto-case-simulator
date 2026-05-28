@@ -115,6 +115,99 @@ function isAuthenticated(req, res, next) {
   next();
 }
 
+// API: Перевірка статусу щоденного кейсу
+app.get('/api/daily-case/status', isAuthenticated, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.session.userId } });
+    
+    if (!user.lastDailyCaseAt) {
+      return res.json({ available: true });
+    }
+
+    const now = new Date();
+    const lastOpened = new Date(user.lastDailyCaseAt);
+    const cooldown = 24 * 60 * 60 * 1000; // 24 години у мілісекундах
+    const timePassed = now - lastOpened;
+
+    if (timePassed >= cooldown) {
+      return res.json({ available: true });
+    } else {
+      const timeLeft = cooldown - timePassed; // залишок часу в мс
+      return res.json({ available: false, timeLeft });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: "Помилка перевірки щоденного кейсу." });
+  }
+});
+
+// API: Відкриття щоденного кейсу (Зі збереженням в інвентар)
+app.post('/api/daily-case/open', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.findUnique({ where: { id: userId } });
+
+      // 1. Повторна сувора перевірка таймеру на сервері
+      if (user.lastDailyCaseAt) {
+        const timePassed = new Date() - new Date(user.lastDailyCaseAt);
+        const cooldown = 24 * 60 * 60 * 1000;
+        if (timePassed < cooldown) {
+          throw new Error("Час ще не минув! Спроба обману системи.");
+        }
+      }
+
+      // 2. Беремо предмети, які належать безкоштовному кейсу
+      // (Використовуємо наш free-case-1, який ми створили в seed.js)
+      const dailyCase = await tx.case.findUnique({
+        where: { id: 'free-case-1' },
+        include: { items: true }
+      });
+
+      if (!dailyCase || dailyCase.items.length === 0) {
+        throw new Error("Щоденний кейс тимчасово не налаштований адміністрацією.");
+      }
+
+      // 3. Алгоритм рандому на основі шансів (як і в звичайних кейсах)
+      const rolledRoll = Math.random() * 100;
+      let rolledItem = null;
+      let accumulatedChance = 0;
+
+      for (const item of dailyCase.items) {
+        accumulatedChance += item.chance;
+        if (rolledRoll <= accumulatedChance) {
+          rolledItem = item;
+          break;
+        }
+      }
+      if (!rolledItem) rolledItem = dailyCase.items[dailyCase.items.length - 1];
+
+      // 4. Фіксуємо новий час відкриття кейсу
+      await tx.user.update({
+        where: { id: userId },
+        data: { lastDailyCaseAt: new Date() }
+      });
+
+      // 5. Записуємо виграний скін в інвентар гравця
+      const newInventoryRecord = await tx.inventory.create({
+        data: {
+          userId: userId,
+          itemId: rolledItem.id,
+          status: "IN_INVENTORY"
+        },
+        include: { item: true }
+      });
+
+      return newInventoryRecord.item;
+    });
+
+    res.json({ success: true, item: result });
+
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
 // API: Профіль користувача
 app.get('/api/user-profile', async (req, res) => {
   if (!req.session.userId) {
@@ -122,15 +215,51 @@ app.get('/api/user-profile', async (req, res) => {
   }
   try {
     const user = await prisma.user.findUnique({ where: { id: req.session.userId } });
+    
+    // Рахуємо статистику інвентарю для профілю
+    const currentInventoryCount = await prisma.inventory.count({ 
+      where: { userId: req.session.userId, status: "IN_INVENTORY" } 
+    });
+    const soldInventoryCount = await prisma.inventory.count({ 
+      where: { userId: req.session.userId, status: "SOLD" } 
+    });
+
     res.json({
       success: true,
       authorized: true,
+      steamId: user.steamId,
       username: user.username,
       balance: user.balance,
-      avatarUrl: user.avatarUrl
+      avatarUrl: user.avatarUrl,
+      role: user.role,
+      nonce: user.nonce, // Порядковий лічильник ігор Provably Fair
+      createdAt: user.createdAt,
+      tradeUrl: user.tradeUrl,
+      stats: {
+        currentItems: currentInventoryCount,
+        totalSold: soldInventoryCount
+      }
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, message: "Помилка завантаження профілю." });
+  }
+});
+
+// API: Останні 15 дропів для Live-стрічки на головній сторінці
+app.get('/api/live-drops', async (req, res) => {
+  try {
+    const recentDrops = await prisma.inventory.findMany({
+      take: 15,
+      orderBy: { droppedAt: 'desc' },
+      include: {
+        item: true,
+        user: { select: { username: true, avatarUrl: true } } // підтягуємо хто саме вибив
+      }
+    });
+    res.json({ success: true, drops: recentDrops });
+  } catch (error) {
+    res.status(500).json({ success: false, error: "Не вдалося завантажити стрічку дропів." });
   }
 });
 
@@ -265,6 +394,84 @@ app.post('/api/sell-item', isAuthenticated, async (req, res) => {
     res.json({ success: true, newBalance: result.balance });
   } catch (err) { console.error(err); res.status(400).json({ success: false, error: String(err) }); }
 });
+
+// API: Оновлення Trade URL користувача
+app.post('/api/user/update-trade', isAuthenticated, async (req, res) => {
+  const { tradeUrl } = req.body;
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: req.session.userId },
+      data: { tradeUrl }
+    });
+    res.json({ success: true, message: "Трейд-посилання успішно збережено!", tradeUrl: updatedUser.tradeUrl });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Помилка оновлення посилання." });
+  }
+});
+
+// API: Активація промокоду для поповнення балансу (Транзакційно)
+app.post('/api/promo/activate', isAuthenticated, async (req, res) => {
+  const { code } = req.body;
+  const userId = req.session.userId;
+
+  if (!code || code.trim() === "") {
+    return res.status(400).json({ success: false, message: "Введіть промокод!" });
+  }
+
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Шукаємо промокод
+      const promo = await tx.promoCode.findUnique({
+        where: { code: code.toUpperCase().trim() },
+        include: { activations: true }
+      });
+
+      if (!promo) {
+        throw new Error("Такого промокоду не існує, бро!");
+      }
+
+      // 2. Перевіряємо загальний ліміт використань
+      if (promo.activations.length >= promo.maxUses) {
+        throw new Error("Цей промокод уже вичерпав свій ліміт!");
+      }
+
+      // 3. Перевіряємо, чи цей користувач його вже не активував
+      const alreadyActivated = promo.activations.some(act => act.userId === userId);
+      if (alreadyActivated) {
+        throw new Error("Ти вже активував цей промокод!");
+      }
+
+      // 4. Фіксуємо активацію
+      await tx.promoActivation.create({
+        data: {
+          userId: userId,
+          promoId: promo.id
+        }
+      });
+
+      // 5. Нараховуємо бали користувачу
+      const updatedUser = await tx.user.update({
+        where: { id: userId },
+        data: { balance: { increment: promo.reward } }
+      });
+
+      return {
+        newBalance: updatedUser.balance,
+        reward: promo.reward
+      };
+    });
+
+    res.json({ 
+      success: true, 
+      message: `Успішно! Нараховано +${result.reward} Б до твого балансу!`, 
+      newBalance: result.newBalance 
+    });
+
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`🚀 SkinBank Beta успішно запущено на http://localhost:${process.env.PORT || 3000}`);

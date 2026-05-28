@@ -29,10 +29,12 @@
         Увійти через Steam
       </a>
       
-      <div id="userProfileInfo" class="hidden flex items-center gap-3">
-        <button id="inventoryBtn" class="text-sm font-semibold text-gray-300 hover:text-white transition-colors underline decoration-gray-500 underline-offset-4 mr-2">Інвентар</button>
-        <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-green-400" alt="Avatar">
-        <span id="usernameDisplay" class="text-gray-300 font-semibold text-sm hidden sm:block"></span>
+      <div id="userProfileInfo" class="hidden flex items-center gap-3">        
+        <div id="profileTrigger" class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" title="Відкрити профіль">
+          <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-green-400" alt="Avatar">
+          <span id="usernameDisplay" class="text-gray-300 font-semibold text-sm hidden sm:block"></span>
+        </div>
+
         <div class="bg-gray-700 px-3 py-1.5 rounded font-mono text-yellow-400 text-sm font-bold shadow-inner">
           <span id="balanceDisplay">0</span> Б
         </div>
@@ -43,20 +45,196 @@
 
   <main class="w-full max-w-6xl mx-auto mt-8 flex flex-col items-center px-4 pb-12">
     
-    <section id="homeView" class="w-full">
-      <h2 class="text-2xl font-bold mb-6 text-gray-200 border-b border-gray-700 pb-2">Усі кейси</h2>
-      <div id="casesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
-    </section>
-
-    <section id="inventoryView" class="w-full hidden">
-      <div class="flex justify-between items-end mb-6 border-b border-gray-700 pb-2">
-        <h2 class="text-2xl font-bold text-gray-200">Мій Інвентар</h2>
-        <span id="inventoryCount" class="text-gray-400 text-sm">0 предметів</span>
-      </div>
-      <div id="inventoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+<section id="homeView" class="w-full flex flex-col gap-8 animate-fade-in">
+      
+      <div class="flex flex-col gap-2">
+        <div class="flex justify-between items-center px-2 text-[10px] text-gray-500 font-bold uppercase tracking-widest">
+          <div class="flex items-center gap-4">
+            <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Онлайн: 342</span>
+            <span>Відкрито кейсів: <span class="text-gray-300">14,892</span></span>
+          </div>
+          <div>Live Drop Feed</div>
         </div>
-      <div id="emptyInventoryMsg" class="hidden text-center text-gray-500 py-12">
-        Тут поки порожньо. Час відкрити кілька кейсів!
+        
+        <div class="w-full bg-gray-900/80 border border-gray-800/80 rounded-xl h-16 overflow-hidden relative shadow-inner backdrop-blur-sm">
+          <div class="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent w-16 z-10"></div>
+          <div id="liveDropsFeed" class="flex items-center gap-3 h-full px-4 overflow-x-auto no-scrollbar scroll-smooth">
+            <div class="text-xs text-gray-600 w-full text-center">Завантаження стрічки дропів...</div>
+          </div>
+          <div class="absolute right-0 top-0 bottom-0 bg-gradient-to-l from-gray-900 via-gray-900/80 to-transparent w-16 z-10"></div>
+        </div>
+      </div>
+
+      <div class="w-full animated-gradient-bg border border-purple-500/30 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden neon-pulse group">
+        <div class="absolute top-0 right-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
+        <div class="absolute -left-20 -top-20 w-64 h-64 bg-blue-500/20 rounded-full blur-[80px]"></div>
+        
+        <div class="space-y-4 z-10 text-center md:text-left">
+          <div class="inline-flex items-center gap-2 bg-black/40 border border-purple-500/30 rounded-full px-3 py-1 backdrop-blur-md">
+            <span class="text-[10px] text-purple-300 font-black uppercase tracking-widest">Бета-тест</span>
+            <span class="w-1 h-1 bg-purple-400 rounded-full"></span>
+            <span class="text-[10px] text-gray-300 uppercase tracking-widest">Сезон 1</span>
+          </div>
+          <h2 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400 tracking-tight drop-shadow-lg">
+            ПОЧНИ ГРУ З БОНУСОМ
+          </h2>
+          <p class="text-gray-300 text-sm md:text-base max-w-lg leading-relaxed">
+            Введи промокод <span class="text-yellow-400 font-mono font-bold bg-black/50 px-2 py-0.5 rounded border border-yellow-500/30">WELCOME5</span> в особистому кабінеті та миттєво отримай <span class="text-white font-bold border-b border-yellow-500">50 Балів</span> на свій баланс для перших відкриттів!
+          </p>
+        </div>
+
+        <div class="relative z-10 shrink-0 w-full md:w-auto">
+          <div class="glass-panel p-6 rounded-2xl flex flex-col items-center justify-center gap-3 text-center border-t border-l border-white/10 shadow-2xl">
+            <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(234,179,8,0.4)] transform rotate-3 hover:rotate-0 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#111827" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5A.5.5 0 0 1 7 8.5v-4A.5.5 0 0 1 8 4z"/></svg>
+            </div>
+            <div>
+              <div class="text-[11px] text-gray-300 font-bold uppercase tracking-widest mb-1">Щоденний кейс</div>
+              <button id="claimDailyBtn" class="w-full bg-white hover:bg-gray-100 text-gray-900 font-black px-6 py-2.5 rounded-lg uppercase tracking-wider text-xs transition-colors shadow-lg disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed">
+                Забрати бонус
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-5">
+        <div class="flex items-center gap-3 border-b border-gray-800 pb-2">
+          <div class="w-8 h-8 rounded bg-blue-500/10 flex items-center justify-center text-blue-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5A.5.5 0 0 1 7 8.5v-4A.5.5 0 0 1 8 4z"/></svg>
+          </div>
+          <h2 class="text-2xl font-black text-white tracking-wide uppercase">Стартові кейси</h2>
+        </div>
+        <div id="grid-FREE" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
+      </div>
+
+      <div class="space-y-5 mt-4">
+        <div class="flex items-center gap-3 border-b border-gray-800 pb-2">
+          <div class="w-8 h-8 rounded bg-green-500/10 flex items-center justify-center text-green-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M10.478 1.647a.5.5 0 1 0-.956-.294l-4 13a.5.5 0 0 0 .956.294l4-13zM4.854 4.146a.5.5 0 0 1 0 .708L1.707 8l3.147 3.146a.5.5 0 0 1-.708.708l-3.5-3.5a.5.5 0 0 1 0-.708l3.5-3.5a.5.5 0 0 1 .708 0zm6.292 0a.5.5 0 0 0 0 .708L14.293 8l-3.147 3.146a.5.5 0 0 0 .708.708l3.5-3.5a.5.5 0 0 0 0-.708l-3.5-3.5a.5.5 0 0 0-.708 0z"/></svg>
+          </div>
+          <h2 class="text-2xl font-black text-white tracking-wide uppercase">Хайпові збірки</h2>
+        </div>
+        <div id="grid-FEATURED" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
+      </div>
+
+      <div class="space-y-5 mt-4">
+        <div class="flex items-center gap-3 border-b border-gray-800 pb-2">
+          <div class="w-8 h-8 rounded bg-yellow-500/10 flex items-center justify-center text-yellow-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.5 0A.5.5 0 0 1 16 .5v4a.5.5 0 0 1-1 0V1.707l-4.5 4.5a.5.5 0 0 1-.707-.707l4.5-4.5H11.5a.5.5 0 0 1 0-1h4zM1 10.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-2.793l4.5 4.5a.5.5 0 0 1-.707.707l-4.5-4.5V14.5a.5.5 0 0 1-1 0v-4z"/></svg>
+          </div>
+          <h2 class="text-2xl font-black text-white tracking-wide uppercase">Ексклюзив</h2>
+        </div>
+        <div id="grid-KNIFE" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"></div>
+      </div>
+
+    </section>
+<section id="profileView" class="w-full hidden flex-col gap-6 max-w-6xl mx-auto animate-fade-in">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+        
+        <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 flex flex-col gap-5 shadow-2xl relative">
+          <div class="flex items-center gap-4 border-b border-gray-700 pb-4">
+            <img id="profAvatar" src="" class="w-20 h-20 rounded-full border-2 border-green-400 shadow-md" alt="Avatar">
+            <div class="flex-1 min-w-0">
+              <h3 id="profUsername" class="text-xl font-black text-white tracking-wide truncate">Нікнейм</h3>
+              <span id="profRoleBadge" class="bg-green-500/20 text-green-400 text-[10px] font-bold px-2 py-0.5 rounded border border-green-500/30 uppercase tracking-widest">USER</span>
+              
+              <div class="flex items-center gap-1.5 mt-2 text-gray-400 hover:text-gray-200 transition-colors cursor-pointer group" id="copySteamIdBtn" title="Клікніть, щоб скопіювати">
+                <span class="text-xs font-mono truncate max-w-[140px]">ID: <span id="profSteamIdText">-----------</span></span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-copy text-gray-500 group-hover:text-green-400 transition-colors" viewBox="0 0 16 16">
+                  <path fill-rule="even-rule" d="M3.5 2a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5v-12a.5.5 0 0 0-.5-.5H3.5zM2 2.5A1.5 1.5 0 0 1 3.5 1h9A1.5 1.5 0 0 1 14 2.5v12a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 14.5v-12z"/>
+                  <path d="M1 4.5a.5.5 0 0 1 .5-.5H3a.5.5 0 0 1 0 1H1.5a.5.5 0 0 1-.5-.5zM1 7.5a.5.5 0 0 1 .5-.5H3a.5.5 0 0 1 0 1H1.5a.5.5 0 0 1-.5-.5zM1 10.5a.5.5 0 0 1 .5-.5H3a.5.5 0 0 1 0 1H1.5a.5.5 0 0 1-.5-.5z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <div class="flex items-center gap-1.5">
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Steam Trade URL</label>
+              <div class="tooltip-container relative inline-block cursor-help text-purple-400 hover:text-purple-300">
+                <span class="text-xs border border-purple-500/50 rounded-full w-4 h-4 flex items-center justify-center font-serif">i</span>
+                <span class="tooltip-text">Steam Trade URL — це веб-посилання, яке дозволяє надсилати вам пропозиції обміну без додавання в друзі.</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" id="tradeUrlInput" placeholder="https://steamcommunity.com/tradeoffer/new/..." class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-green-500 transition-colors">
+              <button id="saveTradeBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold px-4 py-2 rounded text-sm transition-colors shrink-0">Зберегти</button>
+            </div>
+            <a href="https://steamcommunity.com/my/tradeoffers/privacy#trade_offer_access_url" target="_blank" class="text-xs text-blue-400 hover:text-blue-300 transition-all flex items-center gap-1 pt-1 w-fit">
+              Знайти посилання в Steam ↗
+            </a>
+          </div>
+
+          <div class="space-y-2 pt-4 border-t border-gray-700/50">
+            <div class="flex items-center gap-1.5">
+              <label class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Промокод</label>
+              <div class="tooltip-container relative inline-block cursor-help text-purple-400 hover:text-purple-300">
+                <span class="text-xs border border-purple-500/50 rounded-full w-4 h-4 flex items-center justify-center font-serif">i</span>
+                <span class="tooltip-text">Введіть секретний код від адміністрації або партнерів для миттєвого нарахування бонусних Балів на баланс.</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <input type="text" id="promoInput" placeholder="% Промо" class="w-full bg-gray-900 border border-gray-700 rounded px-3 py-2 text-sm text-yellow-400 font-mono font-bold uppercase tracking-widest focus:outline-none focus:border-yellow-500 transition-colors">
+              <button id="activatePromoBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded text-sm transition-colors shadow-[0_0_15px_rgba(168,85,247,0.2)] shrink-0">Застосувати</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl p-6 flex flex-col justify-between shadow-md relative overflow-hidden group">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Відкриті кейси</span>
+            <span id="profTotalOpened" class="text-4xl font-black text-green-400 font-mono mt-4">0</span>
+          </div>
+          <div class="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl p-6 flex flex-col justify-between shadow-md relative overflow-hidden group">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Контракти укладено</span>
+            <span id="profContractsCount" class="text-4xl font-black text-purple-400 font-mono mt-4">0</span>
+          </div>
+          <div class="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl p-6 flex flex-col justify-between shadow-md relative overflow-hidden group">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Поточний Баланс</span>
+            <span class="text-4xl font-black text-yellow-400 font-mono mt-4"><span id="profBalanceV2">0</span> Б</span>
+          </div>
+          <div class="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl p-6 flex flex-col justify-between shadow-md relative overflow-hidden group">
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Скінів продано</span>
+            <span id="profTotalSold" class="text-4xl font-black text-red-400 font-mono mt-4">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl mt-2 flex flex-col gap-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-gray-700 pb-4">
+          <div>
+            <h3 class="text-xl font-black text-white tracking-wide uppercase">Ваші скіни</h3>
+            <div class="text-xs text-gray-400 mt-1">
+              Загальна вартість інвентарю: <span id="totalInventoryValue" class="text-yellow-400 font-bold font-mono">0 Б</span>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <select id="filterRarity" class="bg-gray-900 border border-gray-700 rounded px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-green-500 cursor-pointer">
+              <option value="all">Усі типи рідкості</option>
+              <option value="rare">Ніж / Таємне (Шанс &lt; 2%)</option>
+              <option value="classified">Засекречене (Шанс &lt; 15%)</option>
+              <option value="common">Армійське (Шанс &gt;= 15%)</option>
+            </select>
+            
+            <select id="filterSort" class="bg-gray-900 border border-gray-700 rounded px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-green-500 cursor-pointer">
+              <option value="price-desc">Ціна: Спочатку дорожчі</option>
+              <option value="price-asc">Ціна: Спочатку дешевші</option>
+              <option value="date-desc">Дата: Спочатку нові</option>
+            </select>
+
+            <span id="inventoryCount" class="bg-gray-900 px-3 py-1.5 rounded text-xs font-bold text-gray-400 font-mono shrink-0">0 предметів</span>
+          </div>
+        </div>
+        
+        <div id="inventoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          </div>
+        
+        <div id="emptyInventoryMsg" class="hidden text-center text-gray-500 py-12 text-sm">
+          У вашому інвентарі поки немає предметів з цими фільтрами. Час відкрити кейс!
+        </div>
       </div>
     </section>
 
@@ -143,5 +321,23 @@
   </div>
 
   <script src="app.js"></script>
+
+<div id="dailyModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-gray-800 border border-yellow-500/40 rounded-2xl p-6 max-w-sm w-full text-center relative shadow-[0_0_40px_rgba(234,179,8,0.15)] animate-fade-in">
+      <div class="text-yellow-400 font-black text-xs uppercase tracking-widest mb-2">Твій щоденний дроп!</div>
+      <h3 class="text-xl font-black text-white uppercase tracking-wide mb-4">Вітаємо з виграшем</h3>
+      
+      <div class="bg-gray-900 border border-gray-700 rounded-xl p-6 flex flex-col items-center justify-center mb-6">
+        <img id="dailyModalImg" src="" class="w-28 h-28 object-contain mb-3 drop-shadow-[0_10px_15px_rgba(0,0,0,0.5)]">
+        <div id="dailyModalName" class="text-sm font-bold text-gray-200 truncate w-full px-2">Скін</div>
+        <div id="dailyModalPrice" class="text-xs text-yellow-400 font-mono font-bold mt-1">0 Б</div>
+      </div>
+
+      <button id="closeDailyModalBtn" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-2.5 rounded-xl text-sm transition-colors">
+        Чудово, в інвентар!
+      </button>
+    </div>
+  </div>
+
 </body>
 </html>
