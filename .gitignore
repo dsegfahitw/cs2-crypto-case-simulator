@@ -1,0 +1,10 @@
+# Секретні змінні оточення (паролі, ключі)
+.env
+
+# Залежності Node.js
+node_modules/
+package-lock.json
+
+# Логи та системні файли
+npm-debug.log*
+.DS_Store

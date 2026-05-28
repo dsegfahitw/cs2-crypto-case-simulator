@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CS2 Case Simulator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center">
+  
+  <header class="w-full bg-gray-800 p-4 shadow-md flex justify-between items-center max-w-6xl mx-auto rounded-b-lg">
+    <h1 id="logoBtn" class="text-xl font-bold tracking-wider text-green-400 cursor-pointer hover:text-green-300 transition-colors">CS2 CRYPTO</h1>
+    <div class="flex gap-4 items-center">
+      <span id="usernameDisplay" class="text-gray-300">Завантаження...</span>
+      <div class="bg-gray-700 px-4 py-2 rounded-md font-mono text-green-400">
+        $<span id="balanceDisplay">0.00</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="w-full max-w-6xl mx-auto mt-8 flex flex-col items-center px-4 pb-12">
+    
+    <section id="homeView" class="w-full">
+      <h2 class="text-2xl font-bold mb-6 text-gray-200 border-b border-gray-700 pb-2">Усі кейси</h2>
+      <div id="casesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        </div>
+    </section>
+
+    <section id="caseView" class="w-full hidden flex-col items-center">
+      
+      <div class="w-full flex justify-start mb-6">
+        <button id="backBtn" class="text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Назад до кейсів
+        </button>
+      </div>
+
+      <div class="text-center mb-8">
+        <h2 id="currentCaseTitle" class="text-4xl font-bold text-white mb-2">Назва Кейсу</h2>
+        <p class="text-gray-400">Вартість: <span id="currentCasePrice" class="text-green-400 font-mono font-bold"></span></p>
+      </div>
+
+      <div class="mb-8">
+        <button id="openCaseBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-12 rounded-md shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-lg">
+          ВІДКРИТИ КЕЙС
+        </button>
+      </div>
+
+      <div class="relative w-full max-w-4xl h-48 bg-gray-800 rounded-lg overflow-hidden border-2 border-gray-700 shadow-2xl mb-12">
+        <div class="absolute left-1/2 top-0 bottom-0 w-1 bg-yellow-400 z-10 shadow-[0_0_10px_rgba(250,204,21,1)] transform -translate-x-1/2"></div>
+        <div id="rouletteTrack" class="flex items-center h-full gap-4 absolute left-0 will-change-transform">
+          </div>
+      </div>
+
+      <div class="w-full">
+        <h3 class="text-xl font-bold mb-4 text-gray-300 border-b border-gray-700 pb-2">Вміст кейсу</h3>
+        <div id="caseContentsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="winModal" class="fixed inset-0 bg-black/80 hidden flex justify-center items-center z-50 opacity-0 transition-opacity duration-300">
+    <div class="bg-gray-800 border border-gray-700 p-8 rounded-xl text-center max-w-sm w-full transform scale-95 transition-transform duration-300">
+      <h2 class="text-2xl font-bold mb-2 text-green-400">ВИГРАШ!</h2>
+      <p id="winItemName" class="text-lg font-semibold text-white"></p>
+      <p id="winItemPrice" class="text-gray-400 font-mono mb-6"></p>
+      <button id="collectBtn" class="w-full bg-green-500 hover:bg-green-600 font-bold py-3 rounded-md transition-colors">
+        ЗАБРАТИ
+      </button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
