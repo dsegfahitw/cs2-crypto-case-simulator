@@ -10,18 +10,31 @@
 <body class="bg-gray-900 text-white font-sans min-h-screen flex flex-col items-center">
   
   <header class="w-full bg-gray-800 p-4 shadow-md flex justify-between items-center max-w-6xl mx-auto rounded-b-lg">
+  <div class="flex items-center gap-6">
     <h1 id="logoBtn" class="text-xl font-bold tracking-wider text-green-400 cursor-pointer hover:text-green-300 transition-colors">SKINBANK</h1>
+    <button id="faqBtn" class="text-sm font-semibold text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-info-circle-fill" viewBox="0 0 16 16">
+      <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+    </svg>
+    FAQ
+  </button>
+  </div>
     
     <div id="authBlock" class="flex gap-4 items-center">
-      <a id="loginBtn" href="/auth/fake-login" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors text-sm">
-        Увійти (Fake Steam)
+      <a id="loginBtn" href="/auth/steam" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white font-bold py-2 px-4 rounded transition-colors text-sm flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-steam" viewBox="0 0 16 16">
+          <path d="M0.329 10.333l2.521-1.04a7.35 7.35 0 0 1 1.054-1.699l-1.077-3.084a4.137 4.137 0 1 1 5.926 5.56l-3.053 1.066a3.242 3.242 0 1 1-2.072-2.115l-1.084 3.104a1.861 1.861 0 1 0 1.954-2.529z"/>
+          <path d="M9.13 6.94a1.97 1.97 0 1 0 0-3.94 1.97 1.97 0 0 0 0 3.94z"/>
+        </svg>
+        Увійти через Steam
       </a>
       
       <div id="userProfileInfo" class="hidden flex items-center gap-3">
+        <button id="inventoryBtn" class="text-sm font-semibold text-gray-300 hover:text-white transition-colors underline decoration-gray-500 underline-offset-4 mr-2">Інвентар</button>
         <img id="userAvatar" src="" class="w-8 h-8 rounded-full border border-green-400" alt="Avatar">
-        <span id="usernameDisplay" class="text-gray-300 font-semibold text-sm"></span>
-        <div class="bg-gray-700 px-3 py-1.5 rounded font-mono text-green-400 text-sm">
-          $<span id="balanceDisplay">0.00</span>
+        <span id="usernameDisplay" class="text-gray-300 font-semibold text-sm hidden sm:block"></span>
+        <div class="bg-gray-700 px-3 py-1.5 rounded font-mono text-yellow-400 text-sm font-bold shadow-inner">
+          <span id="balanceDisplay">0</span> Б
         </div>
         <a href="/auth/logout" class="text-xs text-red-400 hover:text-red-300 transition-colors pl-2">Вийти</a>
       </div>
@@ -35,21 +48,68 @@
       <div id="casesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
     </section>
 
+    <section id="inventoryView" class="w-full hidden">
+      <div class="flex justify-between items-end mb-6 border-b border-gray-700 pb-2">
+        <h2 class="text-2xl font-bold text-gray-200">Мій Інвентар</h2>
+        <span id="inventoryCount" class="text-gray-400 text-sm">0 предметів</span>
+      </div>
+      <div id="inventoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        </div>
+      <div id="emptyInventoryMsg" class="hidden text-center text-gray-500 py-12">
+        Тут поки порожньо. Час відкрити кілька кейсів!
+      </div>
+    </section>
+
+    <section id="faqView" class="w-full hidden max-w-4xl mx-auto">
+      <div class="flex justify-between items-end mb-6 border-b border-gray-700 pb-2">
+        <h2 class="text-3xl font-bold text-gray-200">Довідка та FAQ</h2>
+      </div>
+      
+      <div class="space-y-6">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-gray-500 transition-colors">
+          <h3 class="text-xl font-bold text-green-400 mb-2">Чи використовуються тут реальні гроші?</h3>
+          <p class="text-gray-300 leading-relaxed">Ні. <strong>SkinBank Beta</strong> — це виключно освітній симулятор-рулетка. Уся економіка побудована на віртуальних "Балах" (Б). Ви не можете зробити реальний депозит, вивести кошти чи перевести скіни у свій реальний акаунт Steam. Грайте заради задоволення!</p>
+        </div>
+
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-gray-500 transition-colors">
+          <h3 class="text-xl font-bold text-green-400 mb-2">Як працює чесність алгоритму (Provably Fair)?</h3>
+          <p class="text-gray-300 leading-relaxed mb-2">Ми використовуємо передовий криптографічний алгоритм <strong>SHA-256</strong>. Для генерації результату рулетки беруться три параметри:</p>
+          <ul class="list-disc list-inside text-gray-400 space-y-1 mb-3 ml-2">
+            <li><span class="text-gray-300 font-mono bg-gray-900 px-1 rounded">Server Seed</span> (засекречений ключ нашого сервера)</li>
+            <li><span class="text-gray-300 font-mono bg-gray-900 px-1 rounded">Client Seed</span> (ваш особистий ключ, який ви передаєте)</li>
+            <li><span class="text-gray-300 font-mono bg-gray-900 px-1 rounded">Nonce</span> (точний порядковий номер вашої гри в БД)</li>
+          </ul>
+          <p class="text-gray-300 leading-relaxed">Система комбінує ці дані та генерує хеш <em>до</em> того, як рулетка почне крутитися. Це математично гарантує, що результат відомий заздалегідь і його неможливо "підкрутити" в процесі анімації.</p>
+        </div>
+
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-6 hover:border-gray-500 transition-colors">
+          <h3 class="text-xl font-bold text-green-400 mb-2">Як отримати більше Балів для гри?</h3>
+          <p class="text-gray-300 leading-relaxed">Наразі кожен новий гравець при авторизації через Steam автоматично отримує вітальний бонус <strong>150 Балів</strong>. Також ви можете продавати вибиті скіни зі свого Інвентарю системі, щоб крутити кейси знову. У майбутньому ми додамо безкоштовні щоденні кейси та систему промокодів.</p>
+        </div>
+      </div>
+    </section>
+
     <section id="caseView" class="w-full hidden flex-col items-center">
       <div class="w-full flex justify-start mb-6">
-        <button id="backBtn" class="text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
-          ← Назад до кейсів
+        <button class="backToHomeBtn text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
+          ← Назад
         </button>
       </div>
 
       <div class="text-center mb-6">
         <h2 id="currentCaseTitle" class="text-4xl font-bold text-white mb-2">Назва Кейсу</h2>
-        <p class="text-gray-400">Вартість: <span id="currentCasePrice" class="text-green-400 font-mono font-bold"></span></p>
+        <p class="text-gray-400">Вартість: <span id="currentCasePrice" class="text-yellow-400 font-mono font-bold"></span></p>
       </div>
 
-      <div class="mb-8">
-        <button id="openCaseBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-12 rounded-md shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all disabled:opacity-50 text-lg">
-          ВІДКРИТИ КЕЙС
+      <div class="mb-8 flex gap-4 w-full max-w-md">
+        <button id="openCaseBtn" class="w-1/2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-md shadow-[0_0_15px_rgba(34,197,94,0.4)] transition-all disabled:opacity-50 text-base">
+          КРУТИТИ
+        </button>
+        <button id="openCaseFastBtn" class="w-1/2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-md shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all disabled:opacity-50 text-base flex justify-center items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lightning-fill" viewBox="0 0 16 16">
+            <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+          </svg>
+          МИТТЄВО
         </button>
       </div>
 
@@ -65,12 +125,20 @@
     </section>
   </main>
 
-  <div id="winModal" class="fixed inset-0 bg-black/80 hidden flex justify-center items-center z-50 opacity-0 transition-opacity duration-300">
+<div id="winModal" class="fixed inset-0 bg-black/80 hidden flex justify-center items-center z-50 opacity-0 transition-opacity duration-300">
     <div class="bg-gray-800 border border-gray-700 p-8 rounded-xl text-center max-w-sm w-full transform scale-95 transition-transform duration-300">
       <h2 class="text-2xl font-bold mb-2 text-green-400">ВИГРАШ!</h2>
       <p id="winItemName" class="text-lg font-semibold text-white mb-1"></p>
-      <p id="winItemPrice" class="text-gray-400 font-mono mb-6"></p>
-      <button id="collectBtn" class="w-full bg-green-500 hover:bg-green-600 font-bold py-3 rounded-md transition-colors">ЗАБРАТИ</button>
+      <p id="winItemPrice" class="text-yellow-400 font-mono font-bold mb-6"></p>
+      
+      <div class="flex gap-3">
+        <button id="collectBtn" class="w-1/2 bg-gray-700 hover:bg-gray-600 font-bold py-3 rounded-md transition-colors text-sm tracking-wide">
+          В ІНВЕНТАР
+        </button>
+        <button id="sellInstantlyBtn" class="w-1/2 bg-red-600 hover:bg-red-700 font-bold py-3 rounded-md transition-colors text-sm tracking-wide shadow-[0_0_15px_rgba(220,38,38,0.2)]">
+          ПРОДАТИ
+        </button>
+      </div>
     </div>
   </div>
 

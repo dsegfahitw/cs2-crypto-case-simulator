@@ -16,6 +16,8 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "express-session": "^1.19.0",
+    "passport": "^0.7.0",
+    "passport-steam": "^1.0.18",
     "pg": "^8.21.0"
   },
   "devDependencies": {

@@ -15,6 +15,7 @@ model User {
   avatarUrl   String?                          // Посилання на аватарку
   balance     Float       @default(10.00)      // Стартовий баланс $10 для тесту бети
   role        String      @default("USER")     // Роль: USER або ADMIN
+  nonce       Int         @default(0)          // Лічильник ігор для Provably Fair
   createdAt   DateTime    @default(now())
   
   // Зв'язок: у одного користувача може бути багато предметів в інвентарі

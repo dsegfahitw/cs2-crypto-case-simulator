@@ -4,6 +4,8 @@ const crypto = require('crypto');
 const path = require('path');
 const session = require('express-session');
 const rateLimit = require('express-rate-limit');
+const passport = require('passport');
+const SteamStrategy = require('passport-steam').Strategy;
 
 // 1. Підключаємо модулі для роботи з БД
 const { Pool } = require('pg');
@@ -17,6 +19,16 @@ const adapter = new PrismaPg(pool);
 // 3. Ініціалізуємо Prisma 7 через адаптер
 const prisma = new PrismaClient({ adapter });
 
+passport.use(new SteamStrategy({
+    returnURL: 'http://localhost:3000/auth/steam/return',
+    realm: 'http://localhost:3000/',
+    apiKey: process.env.STEAM_API_KEY
+  },
+  function(identifier, profile, done) {
+    // Steam повертає профіль юзера, передаємо його далі
+    return done(null, profile);
+  }
+));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,7 +38,7 @@ app.use(express.json());
 
 // Налаштування сесій
 app.use(session({
-  secret: 'super-secret-local-bro-key',
+  secret: process.env.SESSION_SECRET || 'super-secret-local-bro-key',
   resave: false,
   saveUninitialized: false,
   cookie: { 
@@ -36,6 +48,10 @@ app.use(session({
   }
 }));
 
+// Ініціалізація Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Захист від спаму кнопкою
 const openCaseLimiter = rateLimit({
   windowMs: 1500, 
@@ -43,29 +59,47 @@ const openCaseLimiter = rateLimit({
   message: { success: false, message: "Ей, бро, не спам! Стрічка ще крутиться." }
 });
 
-// Роут імітації входу (Фейк-Стім)
-app.get('/auth/fake-login', async (req, res) => {
+// 1. Ініціалізація входу (перекидає на сторінку Steam)
+app.get('/auth/steam', passport.authenticate('steam', { failureRedirect: '/' }));
+
+// 2. Повернення зі Steam після успішного входу
+app.get('/auth/steam/return', passport.authenticate('steam', { failureRedirect: '/', session: false }), async (req, res) => {
   try {
-    const testSteamId = "76561198000000000";
-    let user = await prisma.user.findUnique({ where: { steamId: testSteamId } });
+    const steamProfile = req.user; // Дані, які віддав Steam
+    const steamId = steamProfile.id;
+    const username = steamProfile.displayName;
+    const avatarUrl = steamProfile._json.avatarfull;
+
+    // Шукаємо гравця в нашій базі
+    let user = await prisma.user.findUnique({ where: { steamId: steamId } });
 
     if (!user) {
+      // Якщо це новий гравець — створюємо йому профіль і даємо стартові бали
       user = await prisma.user.create({
         data: {
-          steamId: testSteamId,
-          username: "Сеньйор Розробник (Beta)",
-          avatarUrl: "https://placehold.co/100x100/1f2937/4ade80?text=Dev",
-          balance: 150.00
+          steamId: steamId,
+          username: username,
+          avatarUrl: avatarUrl,
+          balance: 150.00, // Вітальний бонус 150 Балів
+          nonce: 0
         }
       });
-      console.log("🆕 Тестового користувача створено в Supabase!");
+      console.log(`🆕 Новий гравець приєднався: ${username}`);
+    } else {
+      // Якщо гравець вже є — оновлюємо його аватарку та нік (раптом він змінив їх у Steam)
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { username: username, avatarUrl: avatarUrl }
+      });
+      console.log(`👋 З поверненням, ${username}`);
     }
 
+    // Записуємо його ID у нашу надійну сесію
     req.session.userId = user.id;
     res.redirect('/');
   } catch (error) {
-    console.error("Помилка авторизації:", error);
-    res.status(500).send("Помилка сервера при вході.");
+    console.error("Помилка Steam Auth:", error);
+    res.status(500).send("Помилка авторизації.");
   }
 });
 
@@ -126,9 +160,12 @@ function openCaseProvablyFair(items, serverSeed, clientSeed, nonce) {
       return { item, hash, randomNumber };
     }
   }
+
+  // Fallback: if rounding or malformed chances skip selection, return the last item
+  return { item: items[items.length - 1], hash, randomNumber };
 }
 
-// API: Відкриття кейсу (POST з ACID-транзакцією)
+// API: Відкриття кейсу (POST з ACID-транзакцією та справжнім Provably Fair)
 app.post('/api/open-case', openCaseLimiter, isAuthenticated, async (req, res) => {
   const { caseId, clientSeed } = req.body;
   const userId = req.session.userId;
@@ -147,24 +184,29 @@ app.post('/api/open-case', openCaseLimiter, isAuthenticated, async (req, res) =>
       const user = await tx.user.findUnique({ where: { id: userId } });
 
       if (user.balance < currentCase.price) {
-        throw new Error("Недостатньо коштів на балансі, бро!");
+        throw new Error("Недостатньо балів на балансі, бро!");
       }
 
       const balanceAfterBuy = user.balance - currentCase.price;
       
-      const serverSeed = "super_secret_server_seed_key";
-      const nonce = Date.now();
+      // Справжній Provably Fair 
+      const serverSeed = process.env.SERVER_SEED || "fallback_server_seed";
+      const nonce = user.nonce; // Беремо точний порядковий номер гри юзера з БД
       const userSeed = clientSeed || "default_bro_seed";
       
       const dropResult = openCaseProvablyFair(currentCase.items, serverSeed, userSeed, nonce);
       const finalBalance = balanceAfterBuy + dropResult.item.price;
 
+      // Оновлюємо баланс та ЗБІЛЬШУЄМО nonce на 1
       await tx.user.update({
         where: { id: userId },
-        data: { balance: finalBalance }
+        data: { 
+          balance: balanceAfterBuy,
+          nonce: { increment: 1 } // Наступна гра матиме новий хеш
+        }
       });
 
-      await tx.inventory.create({
+      const newInventoryItem = await tx.inventory.create({
         data: {
           userId: user.id,
           itemId: dropResult.item.id,
@@ -178,7 +220,9 @@ app.post('/api/open-case', openCaseLimiter, isAuthenticated, async (req, res) =>
         randomNumber: dropResult.randomNumber,
         previousBalance: user.balance,
         balanceAfterBuy,
-        finalBalance
+        finalBalance: balanceAfterBuy,
+        inventoryId: newInventoryItem.id,
+        nonce: nonce                      
       };
     });
 
@@ -192,7 +236,8 @@ app.post('/api/open-case', openCaseLimiter, isAuthenticated, async (req, res) =>
         finalBalance: result.finalBalance.toFixed(2)
       },
       drop: result.drop,
-      provablyFair: { hash: result.hash, number: result.randomNumber.toFixed(4) }
+      inventoryId: result.inventoryId,
+      provablyFair: { hash: result.hash, number: result.randomNumber.toFixed(4), nonce: result.nonce }
     });
 
   } catch (error) {
@@ -200,6 +245,27 @@ app.post('/api/open-case', openCaseLimiter, isAuthenticated, async (req, res) =>
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 SkinBank Beta успішно запущено на http://localhost:${PORT}`);
+app.get('/api/inventory', isAuthenticated, async (req, res) => {
+  try {
+    const data = await prisma.inventory.findMany({ where: { userId: req.session.userId, status: "IN_INVENTORY" }, include: { item: true } });
+    res.json({ success: true, inventory: data });
+  } catch (err) { console.error(err); res.status(500).json({ success: false, error: String(err) }); }
+});
+
+app.post('/api/sell-item', isAuthenticated, async (req, res) => {
+  const { inventoryId } = req.body;
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const inv = await tx.inventory.findUnique({ where: { id: inventoryId }, include: { item: true } });
+      if (!inv || inv.userId !== req.session.userId || inv.status !== 'IN_INVENTORY') throw new Error('Invalid inventory item');
+      await tx.inventory.update({ where: { id: inventoryId }, data: { status: 'SOLD' } });
+      const updatedUser = await tx.user.update({ where: { id: req.session.userId }, data: { balance: { increment: inv.item.price } } });
+      return updatedUser;
+    });
+    res.json({ success: true, newBalance: result.balance });
+  } catch (err) { console.error(err); res.status(400).json({ success: false, error: String(err) }); }
+});
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`🚀 SkinBank Beta успішно запущено на http://localhost:${process.env.PORT || 3000}`);
 });
