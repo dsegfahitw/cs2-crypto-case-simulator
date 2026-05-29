@@ -25,20 +25,22 @@ function openCaseProvablyFair(
   return { item: items[items.length - 1], hash, randomNumber };
 }
 
-let lastOpenTime = 0;
+const userLastOpenTime = new Map<string, number>();
 
 export async function POST(req: NextRequest) {
-  const now = Date.now();
-  if (now - lastOpenTime < 1500) {
-    return NextResponse.json(
-      { success: false, message: "Please wait before opening another case." },
-      { status: 429 }
-    );
-  }
-  lastOpenTime = now;
-
   try {
     const userId = await requireAuth();
+
+    const now = Date.now();
+    const lastOpen = userLastOpenTime.get(userId) ?? 0;
+    if (now - lastOpen < 1500) {
+      return NextResponse.json(
+        { success: false, message: 'Please wait before opening another case.' },
+        { status: 429 }
+      );
+    }
+    userLastOpenTime.set(userId, now);
+
     const { caseId, clientSeed } = await req.json();
     const prisma = getPrisma();
 

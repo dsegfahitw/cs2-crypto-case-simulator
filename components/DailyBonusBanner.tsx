@@ -108,19 +108,22 @@ export default function DailyBonusBanner({ user, onUpdateBalance }: Props) {
             </div>
             <div>
               <div className="text-[11px] text-gray-300 font-bold uppercase tracking-widest mb-1">Daily Case</div>
-              <button
-                onClick={handleClaim}
-                disabled={!available || loading}
-                className="w-full bg-white hover:bg-gray-100 text-gray-900 font-black px-6 py-2.5 rounded-lg uppercase tracking-wider text-xs transition-colors shadow-lg disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
-              >
-                {loading
-                  ? 'Opening...'
-                  : !user.authorized
-                  ? 'Sign In to Claim'
-                  : available
-                  ? 'Claim Bonus'
-                  : formatTime(timeLeft)}
-              </button>
+              {!user.authorized ? (
+                <a
+                  href="/api/auth/steam"
+                  className="block w-full bg-white hover:bg-gray-100 text-gray-900 font-black px-6 py-2.5 rounded-lg uppercase tracking-wider text-xs transition-colors shadow-lg text-center"
+                >
+                  Sign In to Claim
+                </a>
+              ) : (
+                <button
+                  onClick={handleClaim}
+                  disabled={!available || loading}
+                  className="w-full bg-white hover:bg-gray-100 text-gray-900 font-black px-6 py-2.5 rounded-lg uppercase tracking-wider text-xs transition-colors shadow-lg disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Opening...' : available ? 'Claim Bonus' : formatTime(timeLeft)}
+                </button>
+              )}
             </div>
           </div>
         </div>

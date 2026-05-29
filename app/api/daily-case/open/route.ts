@@ -49,7 +49,7 @@ export async function POST() {
 
       await tx.user.update({
         where: { id: userId },
-        data: { lastDailyCaseAt: new Date() },
+        data: { lastDailyCaseAt: new Date(), nonce: { increment: 1 } },
       });
 
       const newInventoryRecord = await tx.inventory.create({

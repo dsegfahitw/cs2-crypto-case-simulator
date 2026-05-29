@@ -35,8 +35,14 @@ async function getSteamProfile(steamId: string) {
   return players[0];
 }
 
+function getBaseUrl(req: NextRequest): string {
+  const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || 'localhost:5000';
+  const proto = req.headers.get('x-forwarded-proto') || 'http';
+  return `${proto}://${host}`;
+}
+
 export async function GET(req: NextRequest) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `http://localhost:5000`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || getBaseUrl(req);
   const { searchParams } = new URL(req.url);
 
   try {
