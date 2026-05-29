@@ -1,3 +1,6 @@
 {
+  "/api/user-profile/route": "app/api/user-profile/route.js",
+  "/api/cases/route": "app/api/cases/route.js",
+  "/api/live-drops/route": "app/api/live-drops/route.js",
   "/page": "app/page.js"
 }
