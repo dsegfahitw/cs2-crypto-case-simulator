@@ -20,6 +20,12 @@ export default function Header({ user, onNavigate, onLoadProfile }: Props) {
           SKINBANK
         </h1>
         <button
+          onClick={() => onNavigate('upgrade')}
+          className="text-sm font-semibold text-purple-400 hover:text-purple-300 transition-colors flex items-center gap-1"
+        >
+          UPGRADES
+        </button>
+        <button
           onClick={() => onNavigate('faq')}
           className="text-sm font-semibold text-gray-400 hover:text-white transition-colors flex items-center gap-1"
         >

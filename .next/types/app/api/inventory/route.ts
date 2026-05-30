@@ -1,4 +1,4 @@
-// File: /home/runner/workspace/app/api/inventory/route.ts
+// File: E:\(repl)cs2-case-simulatorzip\app\api\inventory\route.ts
 import * as entry from '../../../../../app/api/inventory/route.js'
 import type { NextRequest } from 'next/server.js'
 

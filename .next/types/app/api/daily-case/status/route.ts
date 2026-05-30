@@ -1,4 +1,4 @@
-// File: /home/runner/workspace/app/api/daily-case/status/route.ts
+// File: E:\(repl)cs2-case-simulatorzip\app\api\daily-case\status\route.ts
 import * as entry from '../../../../../../app/api/daily-case/status/route.js'
 import type { NextRequest } from 'next/server.js'
 

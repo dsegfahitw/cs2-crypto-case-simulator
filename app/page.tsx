@@ -6,8 +6,9 @@ import HomeView from '@/components/HomeView';
 import CaseView from '@/components/CaseView';
 import ProfileView from '@/components/ProfileView';
 import FaqView from '@/components/FaqView';
+import UpgradeView from '@/components/UpgradeView'
 
-export type View = 'home' | 'case' | 'profile' | 'faq';
+export type View = 'home' | 'case' | 'profile' | 'faq' | 'upgrade';
 
 export interface UserProfile {
   authorized: boolean;
@@ -45,6 +46,9 @@ export default function HomePage() {
   const [user, setUser] = useState<UserProfile>({ authorized: false });
   const [activeCaseId, setActiveCaseId] = useState<string | null>(null);
   const [cases, setCases] = useState<Record<string, CaseData>>({});
+
+// Створюємо плоский масив усіх предметів
+  const allItems = Object.values(cases).flatMap(c => c.items);
 
   const fetchUser = useCallback(async () => {
     try {
@@ -120,6 +124,13 @@ export default function HomePage() {
           />
         )}
         {view === 'faq' && <FaqView />}
+        {view === 'upgrade' && (
+          <UpgradeView
+            user={user}
+            allItems={allItems}
+            onUpdateBalance={updateBalance}
+          />
+        )}
       </main>
     </>
   );
