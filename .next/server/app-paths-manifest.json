@@ -1,9 +1,10 @@
 {
-  "/api/user-profile/route": "app/api/user-profile/route.js",
-  "/api/inventory/route": "app/api/inventory/route.js",
-  "/api/upgrade/route": "app/api/upgrade/route.js",
-  "/api/sell-item/route": "app/api/sell-item/route.js",
   "/api/live-drops/route": "app/api/live-drops/route.js",
+  "/api/user-profile/route": "app/api/user-profile/route.js",
+  "/api/cases/route": "app/api/cases/route.js",
+  "/api/auth/steam/route": "app/api/auth/steam/route.js",
+  "/api/auth/steam/return/route": "app/api/auth/steam/return/route.js",
   "/api/daily-case/status/route": "app/api/daily-case/status/route.js",
+  "/api/inventory/route": "app/api/inventory/route.js",
   "/page": "app/page.js"
 }

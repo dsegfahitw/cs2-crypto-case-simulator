@@ -26,6 +26,16 @@
       "static/chunks/main-app.js",
       "static/chunks/app/api/cases/route.js"
     ],
+    "/api/auth/steam/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/auth/steam/route.js"
+    ],
+    "/api/auth/steam/return/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/auth/steam/return/route.js"
+    ],
     "/api/daily-case/status/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -35,21 +45,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/api/inventory/route.js"
-    ],
-    "/api/open-case/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/open-case/route.js"
-    ],
-    "/api/upgrade/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/upgrade/route.js"
-    ],
-    "/api/sell-item/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/sell-item/route.js"
     ]
   }
 }

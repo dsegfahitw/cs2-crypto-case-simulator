@@ -370,9 +370,6 @@
   .top-\[2px\] {
     top: 2px;
   }
-  .top-\[4px\] {
-    top: 4px;
-  }
   .top-\[20\%\] {
     top: 20%;
   }
@@ -465,9 +462,6 @@
   }
   .col-12 {
     grid-column: 12;
-  }
-  .col-span-full {
-    grid-column: 1 / -1;
   }
   .container {
     width: 100%;
@@ -947,9 +941,6 @@
   }
   .max-w-\[140px\] {
     max-width: 140px;
-  }
-  .max-w-\[150px\] {
-    max-width: 150px;
   }
   .max-w-\[170px\] {
     max-width: 170px;
@@ -1922,9 +1913,6 @@
   .py-8 {
     padding-block: calc(var(--spacing) * 8);
   }
-  .py-10 {
-    padding-block: calc(var(--spacing) * 10);
-  }
   .py-12 {
     padding-block: calc(var(--spacing) * 12);
   }
@@ -2317,10 +2305,6 @@
     --tw-shadow: 0 0 15px var(--tw-shadow-color, rgba(168,85,247,0.2));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .shadow-\[0_0_15px_rgba\(168\,85\,247\,0\.3\)\] {
-    --tw-shadow: 0 0 15px var(--tw-shadow-color, rgba(168,85,247,0.3));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
   .shadow-\[0_0_15px_rgba\(168\,85\,247\,0\.15\)\] {
     --tw-shadow: 0 0 15px var(--tw-shadow-color, rgba(168,85,247,0.15));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
@@ -2339,10 +2323,6 @@
   }
   .shadow-\[0_0_20px_rgba\(34\,197\,94\,0\.4\)\] {
     --tw-shadow: 0 0 20px var(--tw-shadow-color, rgba(34,197,94,0.4));
-    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-  }
-  .shadow-\[0_0_20px_rgba\(168\,85\,247\,0\.4\)\] {
-    --tw-shadow: 0 0 20px var(--tw-shadow-color, rgba(168,85,247,0.4));
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .shadow-\[0_0_20px_rgba\(234\,179\,8\,0\.4\)\] {
@@ -2464,16 +2444,6 @@
     --tw-drop-shadow: var(--tw-drop-shadow-size);
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
-  .drop-shadow-\[0_0_15px_rgba\(168\,85\,247\,0\.2\)\] {
-    --tw-drop-shadow-size: drop-shadow(0 0 15px var(--tw-drop-shadow-color, rgba(168,85,247,0.2)));
-    --tw-drop-shadow: var(--tw-drop-shadow-size);
-    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
-  }
-  .drop-shadow-\[0_0_15px_rgba\(168\,85\,247\,0\.3\)\] {
-    --tw-drop-shadow-size: drop-shadow(0 0 15px var(--tw-drop-shadow-color, rgba(168,85,247,0.3)));
-    --tw-drop-shadow: var(--tw-drop-shadow-size);
-    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
-  }
   .drop-shadow-\[0_10px_15px_rgba\(0\,0\,0\,0\.5\)\] {
     --tw-drop-shadow-size: drop-shadow(0 10px 15px var(--tw-drop-shadow-color, rgba(0,0,0,0.5)));
     --tw-drop-shadow: var(--tw-drop-shadow-size);
@@ -2499,11 +2469,6 @@
   }
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
-  }
-  .backdrop-blur {
-    --tw-backdrop-blur: blur(8px);
-    -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
-    backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
   }
   .backdrop-blur-md {
     --tw-backdrop-blur: blur(var(--blur-md));
@@ -3065,13 +3030,6 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-green-700);
-      }
-    }
-  }
-  .hover\:bg-purple-500 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-purple-500);
       }
     }
   }
