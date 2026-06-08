@@ -1,0 +1,89 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String            @id @default(uuid())
+  steamId         String?           @unique
+  googleId        String?           @unique
+  username        String
+  avatarUrl       String?
+  balance         Float             @default(150.00)
+  role            String            @default("USER")
+  nonce           Int               @default(0)
+  contractsCount  Int               @default(0)
+  tradeUrl        String?
+  lastDailyCaseAt DateTime?
+  createdAt       DateTime          @default(now())
+  transactions    Transaction[]
+  inventory       Inventory[]
+  activatedPromos PromoActivation[]
+}
+
+model Case {
+  id        String   @id @default(uuid())
+  title     String
+  price     Float
+  category  String   @default("COMMON")
+  imageUrl  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  items     Item[]   // Залишаємо тільки цей правильний зв'язок
+}
+
+model Item {
+  id        String      @id @default(uuid())
+  name      String
+  price     Float
+  chance    Float
+  rarity    String      @default("COMMON")
+  imageUrl  String?
+  caseId    String
+  case      Case        @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  droppedIn Inventory[]
+}
+
+model Inventory {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  droppedAt DateTime @default(now())
+  status    String   @default("IN_INVENTORY")
+}
+
+model PromoCode {
+  id          String            @id @default(uuid())
+  code        String            @unique
+  reward      Float
+  maxUses     Int               @default(100)
+  createdAt   DateTime          @default(now())
+  activations PromoActivation[]
+}
+
+model PromoActivation {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  promoId     String
+  promo       PromoCode @relation(fields: [promoId], references: [id], onDelete: Cascade)
+  activatedAt DateTime  @default(now())
+
+  @@unique([userId, promoId])
+}
+
+model Transaction {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Float
+  points    Int
+  method    String
+  status    String   @default("SUCCESS")
+  createdAt DateTime @default(now())
+}

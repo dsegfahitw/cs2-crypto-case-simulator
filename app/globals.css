@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+  --color-gray-850: #1a2030;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-neon {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50%       { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6); }
+}
+
+@keyframes roulette-spin {
+  0%   { transform: translateX(var(--roulette-start, 0px)); }
+  100% { transform: translateX(var(--roulette-end, -9900px)); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out both;
+}
+
+.neon-pulse {
+  animation: pulse-neon 3s ease-in-out infinite;
+}
+
+.glass-panel {
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.animated-gradient-bg {
+  background: linear-gradient(135deg, #1e1b4b 0%, #1f2937 50%, #0f172a 100%);
+}
+
+.case-card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.case-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.weapon-card {
+  flex-shrink: 0;
+  width: 134px;
+  height: 160px;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  gap: 4px;
+}
+
+.weapon-name {
+  font-size: 10px;
+  color: #d1d5db;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.weapon-price {
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: bold;
+}
+
+.tooltip-container .tooltip-text {
+  visibility: hidden;
+  width: 220px;
+  background-color: #111827;
+  border: 1px solid #374151;
+  color: #d1d5db;
+  font-size: 11px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  position: absolute;
+  z-index: 50;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  line-height: 1.5;
+}
+
+.tooltip-container:hover .tooltip-text {
+  visibility: visible;
+}
